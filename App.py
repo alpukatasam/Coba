@@ -1,6 +1,7 @@
 import streamlit as st
 import os
 import requests
+from bs4 import BeautifulSoup
 
 # Ambil Client ID dari Streamlit Secrets
 IMGUR_CLIENT_ID = st.secrets["IMGUR_CLIENT_ID"]
@@ -22,6 +23,19 @@ def save_uploaded_file(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return file_path
 
+# Fungsi untuk mengambil hasil pencarian pertama dari Yandex
+def get_first_yandex_image(image_url):
+    search_url = f"https://yandex.com/images/search?rpt=imageview&url={image_url}"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    
+    response = requests.get(search_url, headers=headers)
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, "html.parser")
+        first_image = soup.find("img")
+        if first_image:
+            return first_image["src"]
+    return None
+
 # Judul Aplikasi
 st.title("Pencarian Gambar di Google & Yandex")
 
@@ -37,6 +51,14 @@ if uploaded_file is not None:
     
     if imgur_url:
         st.image(imgur_url, caption="Alternatif Lain", use_column_width=True)
+        
+        # Ambil hasil pencarian pertama dari Yandex
+        first_yandex_image = get_first_yandex_image(imgur_url)
+        
+        if first_yandex_image:
+            st.image(first_yandex_image, caption="Hasil pertama dari Yandex")
+        else:
+            st.warning("Tidak dapat mengambil gambar pertama dari Yandex.")
         
         # URL untuk pencarian gambar langsung
         google_lens_url = "https://lens.google.com/upload"
