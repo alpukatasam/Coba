@@ -1,7 +1,7 @@
 import requests
 
-API_KEY = "YOUR_GOOGLE_API_KEY"
-CX = "YOUR_GOOGLE_CX"
+API_KEY = "AIzaSyCAYdkTkdm-v2uNdUT-jEjqcsYKL7hjxek"
+CX = "61d16d0978b5a455e"
 QUERY = "spices"
 
 url = f"https://www.googleapis.com/customsearch/v1?q={QUERY}&cx={CX}&key={API_KEY}&searchType=image"
