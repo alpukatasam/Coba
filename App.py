@@ -1,38 +1,36 @@
 import streamlit as st
-import requests
+import os
 
-# Ambil API Key & CSE ID dari Secrets
-API_KEY = st.secrets["GOOGLE_API_KEY"]
-CSE_ID = st.secrets["GOOGLE_CSE_ID"]
+# Fungsi untuk menyimpan gambar sementara
+def save_uploaded_file(uploaded_file):
+    file_path = os.path.join("temp_image.jpg")  # Simpan sebagai temp file
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.getbuffer())
+    return file_path
 
-def search_images(query, num_results=5):
-    """Fungsi untuk mencari gambar di Google Image menggunakan API."""
-    url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={CSE_ID}&searchType=image&num={num_results}&key={API_KEY}"
+# Judul Aplikasi
+st.title("Pencarian Gambar di Google & Yandex")
 
-    response = requests.get(url)
-    results = response.json()
+# Upload Gambar
+uploaded_file = st.file_uploader("Upload gambar untuk mencari di Google/Yandex", type=["jpg", "png", "jpeg"])
 
-    st.write(results)  # Debugging, bisa dihapus setelah berhasil
-
-    images = []
-    if "items" in results:
-        for item in results["items"]:
-            images.append(item["link"])
-    return images
-
-# Streamlit UI
-st.title("Mesin Pencari Gambar dengan Google Image")
-
-query = st.text_input("Masukkan kata kunci pencarian:")
-num_results = st.slider("Jumlah gambar yang diinginkan:", 1, 10, 5)
-
-if st.button("Cari"):
-    if query:
-        images = search_images(query, num_results)
-        if images:
-            for img in images:
-                st.image(img, use_column_width=True)
-        else:
-            st.error("Tidak ditemukan gambar untuk kata kunci ini.")
-    else:
-        st.warning("Silakan masukkan kata kunci.")
+if uploaded_file is not None:
+    # Simpan gambar sementara
+    file_path = save_uploaded_file(uploaded_file)
+    
+    # Tampilkan gambar yang diunggah
+    st.image(file_path, caption="Gambar yang diunggah", use_column_width=True)
+    
+    # URL untuk pencarian gambar (harus di-upload ke online hosting jika ingin otomatis)
+    st.write("### Pilih mesin pencari:")
+    
+    google_lens_url = "https://lens.google.com/upload"
+    st.markdown(f"[🔍 Cari dengan Google Lens]({google_lens_url})", unsafe_allow_html=True)
+    
+    google_image_url = "https://www.google.com/searchbyimage?image_url=YOUR_IMAGE_URL"
+    st.markdown(f"[🔍 Cari dengan Google Images]({google_image_url})", unsafe_allow_html=True)
+    
+    yandex_url = "https://yandex.com/images/search?rpt=imageview&url=YOUR_IMAGE_URL"
+    st.markdown(f"[🔍 Cari dengan Yandex]({yandex_url})", unsafe_allow_html=True)
+    
+    st.warning("Saat ini, Google Image & Yandex memerlukan URL gambar yang bisa diakses online. Untuk otomatisasi, perlu hosting gambar.")
