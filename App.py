@@ -11,4 +11,4 @@ if st.button("Cari 🔎"):
     if query:
         images = search_unsplash(query, num_results)
         for img in images:
-            st.image(img, use_column_width=True)
+            st.image(img, use_container_width=True)  # ✅ Perbaikan di sini
