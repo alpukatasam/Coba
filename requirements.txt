@@ -1,0 +1,2 @@
+streamlit
+duckduckgo-search==2.8.5
