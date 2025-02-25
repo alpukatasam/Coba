@@ -1,29 +1,15 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
-import time
+import requests
 
-def get_first_yandex_image_selenium(image_url):
-    search_url = f"https://yandex.com/images/search?rpt=imageview&url={image_url}"
+API_KEY = "YOUR_GOOGLE_API_KEY"
+CX = "YOUR_GOOGLE_CX"
+QUERY = "spices"
 
-    # Setup WebDriver
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")  # Jalankan tanpa GUI
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.get(search_url)
-    time.sleep(3)  # Tunggu loading halaman
+url = f"https://www.googleapis.com/customsearch/v1?q={QUERY}&cx={CX}&key={API_KEY}&searchType=image"
 
-    try:
-        # Cari elemen gambar pertama di hasil pencarian
-        first_image = driver.find_element(By.XPATH, '//img[contains(@class, "serp-item__thumb")]')
-        image_src = first_image.get_attribute("src")
-    except Exception as e:
-        image_src = None
-    finally:
-        driver.quit()
-    
-    return image_src
+response = requests.get(url)
+data = response.json()
+
+if "items" in data:
+    print("Hasil pertama:", data["items"][0]["link"])
+else:
+    print("Tidak ditemukan hasil.")
