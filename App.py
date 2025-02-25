@@ -36,7 +36,7 @@ if uploaded_file is not None:
     imgur_url = upload_to_imgur(file_path)
     
     if imgur_url:
-        st.image(imgur_url, caption="Gambar yang diunggah", use_column_width=True)
+        st.image(imgur_url, caption="Alternatif Lain", use_column_width=True)
         
         # URL untuk pencarian gambar langsung
         google_lens_url = "https://lens.google.com/upload"
