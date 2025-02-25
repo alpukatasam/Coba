@@ -1,24 +1,37 @@
 import streamlit as st
 import requests
 
-ACCESS_KEY = "MASUKKAN_API_KEY_ANDA"  # Ganti dengan API Key dari Unsplash
+# Konfigurasi API
+API_KEY = "YOUR_GOOGLE_API_KEY"
+CSE_ID = "YOUR_CUSTOM_SEARCH_ENGINE_ID"
 
-def search_unsplash(query, num_results=5):
-    url = f"https://api.unsplash.com/photos/random?query={query}&count={num_results}&client_id={ACCESS_KEY}"
+def search_images(query, num_results=5):
+    """Fungsi untuk mencari gambar di Google Image menggunakan API."""
+    url = f"https://www.googleapis.com/customsearch/v1?q={query}&cx={CSE_ID}&searchType=image&num={num_results}&key={API_KEY}"
+    
     response = requests.get(url)
-    if response.status_code == 200:
-        return [img["urls"]["regular"] for img in response.json()]
-    return []
+    results = response.json()
+    
+    images = []
+    if "items" in results:
+        for item in results["items"]:
+            images.append(item["link"])
+    return images
 
-st.title("🔍 Mesin Pencari Gambar Tanpa Login")
+# Streamlit UI
+st.title("Mesin Pencari Gambar dengan Google Image")
+
 query = st.text_input("Masukkan kata kunci pencarian:")
-num_results = st.slider("Jumlah gambar:", 1, 10, 5)
+num_results = st.slider("Jumlah gambar yang diinginkan:", 1, 10, 5)
 
-if st.button("Cari 🔎"):
+if st.button("Cari"):
     if query:
-        images = search_unsplash(query, num_results)
+        images = search_images(query, num_results)
         if images:
             for img in images:
-                st.image(img, use_container_width=True)
+                st.image(img, use_column_width=True)
         else:
-            st.error("❌ Tidak ditemukan gambar.")
+            st.error("Tidak ditemukan gambar untuk kata kunci ini.")
+    else:
+        st.warning("Silakan masukkan kata kunci.")
+
