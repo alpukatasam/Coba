@@ -1,14 +1,26 @@
 import streamlit as st
-from duckduckgo_search import DDGS
+import requests
+from bs4 import BeautifulSoup
 
 def search_duckduckgo_images(query, num_results=5):
-    """Mencari gambar menggunakan DuckDuckGo tanpa API key."""
-    with DDGS() as ddgs:
-        return [r["image"] for r in ddgs.images(query, max_results=num_results)]
+    """Mencari gambar menggunakan scraping DuckDuckGo."""
+    url = f"https://duckduckgo.com/?q={query}&iax=images&ia=images"
+    headers = {"User-Agent": "Mozilla/5.0"}
+    
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+    
+    images = []
+    for img_tag in soup.find_all("img", limit=num_results):
+        img_url = img_tag.get("src")
+        if img_url and img_url.startswith("http"):
+            images.append(img_url)
+    
+    return images
 
 # UI Streamlit
-st.title("🔍 Mesin Pencari Gambar Tanpa Login!")
-st.markdown("Cari gambar langsung tanpa perlu akun atau API key. Powered by DuckDuckGo.")
+st.title("🔍 Mesin Pencari Gambar Tanpa API!")
+st.markdown("Cari gambar langsung tanpa perlu akun atau API key.")
 
 query = st.text_input("Masukkan kata kunci pencarian:")
 num_results = st.slider("Jumlah gambar yang diinginkan:", 1, 10, 5)
@@ -23,4 +35,3 @@ if st.button("Cari 🔎"):
             st.error("❌ Tidak ditemukan gambar untuk kata kunci ini.")
     else:
         st.warning("⚠️ Silakan masukkan kata kunci.")
-
